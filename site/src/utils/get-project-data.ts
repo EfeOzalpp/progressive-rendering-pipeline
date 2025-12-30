@@ -37,14 +37,6 @@ const queries: Record<string, string> = {
     alt,
     image{ asset->{ url } } 
   }`,
-  'climate-book': `*[
-    _type == "imageDemanded" &&
-    title match "book-art-page*"
-  ] | order(title asc) {
-    title,
-    alt,
-    image{ asset->{ url } }
-  }`,
 };
 
 export async function getProjectData<T>(key: string): Promise<T | null> {

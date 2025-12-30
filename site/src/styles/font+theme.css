@@ -2,7 +2,7 @@
 @media (max-width: 767px) {
   html { font-size: 80%; }
   h1 { font-size: clamp(2.2rem, 5.6vw, 2.6rem); line-height: 1.02; letter-spacing: 0.07rem; }
-  h2 { font-size: clamp(1.4rem, 4.8vw, 1.8rem); line-height: 1.2; letter-spacing: 0.07rem; } /* <-- fixed */
+  h2 { font-size: clamp(1.4rem, 4.8vw, 1.8rem); line-height: 1.6; letter-spacing: 0.07rem; } 
   h3 { font-size: clamp(1.1rem, 3.6vw, 1.6rem); line-height: 1.2; letter-spacing: 0.07rem; }
   h4 { font-size: clamp(1rem, 2.2vw, 1.2rem); line-height: 1.2; letter-spacing: 0.07rem; }
   p  { font-size: clamp(0.95rem, 3vw, 1rem); line-height: 1.4; }

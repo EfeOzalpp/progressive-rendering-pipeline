@@ -110,8 +110,9 @@ body.game-mode-active .project-pane#block-game {z-index: 10000; position: relati
   .gameover-text-area {bottom: 168px;}
   .gameover-lottie {width: calc(100% + 32em); margin-top: -168px;}
   .countdown-lottie  {transform: scale(0.9);}
+  .loading-block {width: fit-content; margin: 0 auto; }
+  .onboarding-text {text-align: center;}
 }
-
 @media (min-width: 768px) and (max-width: 1024px) {
   #block-game .g-hydrate-root,
   #block-game .block-g-stage, #block-game .block-g-stage > div  {

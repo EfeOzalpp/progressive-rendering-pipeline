@@ -16,8 +16,7 @@
 .view-project-wrapper { position: fixed; width: 100%; display: flex; z-index: 1200; flex-direction: row; flex-wrap: wrap; justify-content: center; pointer-events: none; bottom: 2dvh; }
 .view-project-btn { position: relative; overflow: hidden; background-color: transparent; display: flex; align-items: center; color: #f0f0f0; border: none; cursor: pointer; pointer-events: all; transition: gap 0.1s ease; padding: 8px 32px 4px 32px; }
 .view-project-btn > * { position: relative; z-index: 1; }
-a.view-project-btn { -webkit-appearance: none; appearance: none; background: transparent; border: 0; box-sizing: border-box; display: inline-flex; align-items: center; text-decoration: none; font: inherit; line-height: 1; }
-button.view-project-btn { -webkit-appearance: none; appearance: none; background: transparent; border: 0; box-sizing: border-box; display: inline-flex; align-items: center; text-decoration: none; font: inherit; line-height: 1; gap: 16px;}
+a.view-project-btn, button.view-project-btn { -webkit-appearance: none; appearance: none; background: transparent; border: 0; box-sizing: border-box; display: inline-flex; align-items: center; text-decoration: none; font: inherit; line-height: 1; gap: 16px;}
 .view-project-background { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); opacity: 1; transition: opacity 0.2s ease, backdrop-filter 0.2s ease; }
 .view-project-background.no-bg { backdrop-filter: none; -webkit-backdrop-filter: none; opacity: 0; background-color: transparent; }
 .view-project-btn h2 { text-shadow: 0px 0px 24px rgb(29 29 33); }

@@ -27,8 +27,8 @@ export function useDynamicOverlay(frameRef: React.RefObject<HTMLElement>) {
       const maxWidth = 320;
 
       // Height range set 1 (your current svh-based values)
-      const minHeightSet1 = 63;
-      const maxHeightSet1 = 93;
+      const minHeightSet1 = 43;
+      const maxHeightSet1 = 72;
 
       // Height range set 2 (original px-based)
       const minHeightSet2 = 280;

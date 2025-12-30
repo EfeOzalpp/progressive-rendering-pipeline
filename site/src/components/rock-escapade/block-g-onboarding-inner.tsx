@@ -149,9 +149,11 @@ const BlockGOnboardingInner: React.FC<InnerProps> = ({
       {/* Not ready → show LoadingHub + classic "Loading…" headline */}
       {!ctaEnabled ? (
         <>
+        <div className="loading-block">
           <h1 className="onboarding-text loading-text" style={{ pointerEvents: 'none' }}>
             Loading Game…
           </h1>
+        <div className="loading-hub-wrap">
           <LoadingHub
             className="loading-hub--game loading-hub--left"
             keyword="game"
@@ -159,6 +161,8 @@ const BlockGOnboardingInner: React.FC<InnerProps> = ({
             lines={loadingLines}
             ariaLabel="Loading game"
           />
+          </div>
+          </div>
         </>
       ) : (
         // Ready → show CTA

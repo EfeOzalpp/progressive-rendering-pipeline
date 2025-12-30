@@ -223,7 +223,6 @@ const DynamicEnhancer: React.FC = () => {
   return createPortal(
     <>
       {showLoader && (
-        <div className="loading-hub-overlay">
           <LoadingHub
             className="loading-hub--dynamic loading-hub--center"
             keyword="dynamic"
@@ -237,7 +236,6 @@ const DynamicEnhancer: React.FC = () => {
             ]}
             minHeight={72}
           />
-        </div>
       )}
 
       {ShadowInbound && shouldMountShadow && (
