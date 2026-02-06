@@ -4,7 +4,7 @@ const postcssPrefixSelector = require('postcss-prefix-selector');
 const LoadablePlugin = require('@loadable/webpack-plugin');
 
 module.exports = function override(config, env) {
-  // --- Resolve aliases & fallbacks (prevent bundling Node-only deps in browser)
+  // Resolve aliases & fallbacks (prevent bundling Node-only deps in browser)
   config.resolve = {
     ...config.resolve,
     alias: {
