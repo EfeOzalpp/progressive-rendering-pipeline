@@ -11,7 +11,8 @@ function isRenderable(el: HTMLElement) {
 }
 
 function ensureOverlay(container: HTMLElement) {
-  let overlay = container.querySelector<HTMLDivElement>('[data-video-play-overlay="1"]');
+  let overlay =
+    container.querySelector<HTMLDivElement>('[data-video-play-overlay="1"]');
   if (overlay) return overlay;
 
   overlay = document.createElement('div');
@@ -51,14 +52,38 @@ function ensureOverlay(container: HTMLElement) {
   return overlay;
 }
 
-function showOverlay(container: HTMLElement) {
-  const overlay = ensureOverlay(container);
-  overlay.style.pointerEvents = 'auto';
-  overlay.style.opacity = '1';
+/**
+ * Only show the overlay if playback hasn't succeeded within `delayMs`.
+ * This prevents flicker when play succeeds quickly.
+ */
+function scheduleShowOverlay(
+  container: HTMLElement,
+  state: { timer: number; token: number },
+  delayMs: number
+) {
+  // "token" invalidates old timers when newer attempts start / succeed.
+  const myToken = ++state.token;
+
+  if (state.timer) window.clearTimeout(state.timer);
+
+  state.timer = window.setTimeout(() => {
+    if (state.token !== myToken) return; // newer attempt/success happened
+    const overlay = ensureOverlay(container);
+    overlay.style.pointerEvents = 'auto';
+    overlay.style.opacity = '1';
+  }, delayMs);
+}
+
+function cancelScheduledOverlay(state: { timer: number; token: number }) {
+  // invalidate any pending show
+  state.token++;
+  if (state.timer) window.clearTimeout(state.timer);
+  state.timer = 0;
 }
 
 function hideOverlay(container: HTMLElement) {
-  const overlay = container.querySelector<HTMLDivElement>('[data-video-play-overlay="1"]');
+  const overlay =
+    container.querySelector<HTMLDivElement>('[data-video-play-overlay="1"]');
   if (!overlay) return;
   overlay.style.pointerEvents = 'none';
   overlay.style.opacity = '0';
@@ -103,25 +128,38 @@ export const useVideoVisibility = (
 
     // Avoid forcing load repeatedly
     if (video.readyState === 0) {
-      try { video.load(); } catch {}
+      try {
+        video.load();
+      } catch {}
     }
 
     let cancelled = false;
     let raf = 0;
 
-    const attemptPlay = async (reason: 'io' | 'ready' | 'gesture' | 'initial') => {
+    // Overlay delay state (kept outside attemptPlay so it survives retries)
+    const overlayDelay = { timer: 0, token: 0 };
+    const OVERLAY_DELAY_MS = 500;
+
+    const attemptPlay = async (
+      reason: 'io' | 'ready' | 'gesture' | 'initial'
+    ) => {
       if (cancelled) return;
 
-      // If the element hasn’t been laid out meaningfully yet, don’t burn the gesture
+      // If the element hasn’t been laid out meaningfully yet, don’t burn the gesture.
+      // If it was a gesture, schedule the overlay (delayed) so we don't flicker.
       if (!isRenderable(container)) {
-        if (reason === 'gesture') showOverlay(container);
+        if (reason === 'gesture') {
+          scheduleShowOverlay(container, overlayDelay, OVERLAY_DELAY_MS);
+        }
         return;
       }
 
       try {
         // load again if still stuck
         if (video.readyState === 0) {
-          try { video.load(); } catch {}
+          try {
+            video.load();
+          } catch {}
         }
 
         const p = video.play();
@@ -129,10 +167,13 @@ export const useVideoVisibility = (
           await p;
         }
 
+        // Success: cancel any pending delayed overlay and hide if already shown
+        cancelScheduledOverlay(overlayDelay);
         hideOverlay(container);
       } catch {
-        // Autoplay blocked OR not ready => require user gesture
-        showOverlay(container);
+        // Autoplay blocked OR not ready => schedule user-gesture UI,
+        // but only after a delay to avoid flicker when play succeeds quickly.
+        scheduleShowOverlay(container, overlayDelay, OVERLAY_DELAY_MS);
       }
     };
 
@@ -144,8 +185,12 @@ export const useVideoVisibility = (
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         if (cancelled) return;
-        if (shouldPlay) void attemptPlay('io');
-        else {
+
+        if (shouldPlay) {
+          void attemptPlay('io');
+        } else {
+          // Leaving view: cancel pending overlay so it doesn't pop in late
+          cancelScheduledOverlay(overlayDelay);
           hideOverlay(container);
           video.pause();
         }
@@ -165,8 +210,10 @@ export const useVideoVisibility = (
 
     // Initial kick
     const rect = container.getBoundingClientRect();
-    const visiblePx = Math.min(window.innerHeight, rect.bottom) - Math.max(0, rect.top);
+    const visiblePx =
+      Math.min(window.innerHeight, rect.bottom) - Math.max(0, rect.top);
     const ratio = rect.height > 0 ? Math.max(0, visiblePx) / rect.height : 0;
+
     if (ratio >= ENTER) {
       lastWantedRef.current = true;
       void attemptPlay('initial');
@@ -182,8 +229,10 @@ export const useVideoVisibility = (
     // Gesture fallback: tapping the container starts playback reliably on iPhone
     const onGesture = (e: Event) => {
       // Only intercept if we *need* it
-      const overlayVisible =
-        container.querySelector<HTMLDivElement>('[data-video-play-overlay="1"]')?.style.opacity === '1';
+      const overlayEl = container.querySelector<HTMLDivElement>(
+        '[data-video-play-overlay="1"]'
+      );
+      const overlayVisible = overlayEl?.style.opacity === '1';
 
       if (overlayVisible || video.paused) {
         e.preventDefault();
@@ -192,17 +241,35 @@ export const useVideoVisibility = (
     };
 
     // capture helps when inner media wrappers intercept touches
-    container.addEventListener('pointerdown', onGesture, { passive: false, capture: true });
-    container.addEventListener('touchstart', onGesture, { passive: false, capture: true });
+    container.addEventListener('pointerdown', onGesture, {
+      passive: false,
+      capture: true,
+    });
+    container.addEventListener('touchstart', onGesture, {
+      passive: false,
+      capture: true,
+    });
 
     return () => {
       cancelled = true;
+
       if (raf) cancelAnimationFrame(raf);
+      cancelScheduledOverlay(overlayDelay);
+
       io.disconnect();
+
       video.removeEventListener('canplay', onReady);
       video.removeEventListener('loadeddata', onReady);
-      container.removeEventListener('pointerdown', onGesture, true as any);
-      container.removeEventListener('touchstart', onGesture, true as any);
+
+      // NOTE: removeEventListener must match the original options.
+      // Passing `true` here only matches "capture: true" listeners, but not the passive flag.
+      // To be safe, pass `{ capture: true }` as well.
+      container.removeEventListener('pointerdown', onGesture, {
+        capture: true,
+      } as any);
+      container.removeEventListener('touchstart', onGesture, {
+        capture: true,
+      } as any);
     };
   }, [videoRef, containerRef, threshold, enabled]);
 };

@@ -305,7 +305,7 @@ const FireworksDisplay = ({ colorMapping = {}, items = [], lastKnownColor, onTog
               } else {
               // For screens larger than 1024px, make the explosion lower on the screen
               this.targetX = p.random(p.width * 0.2, p.width * 0.8);  
-              this.targetY = p.random(p.height * 0.02, p.height * 0.5);  
+              this.targetY = p.random(p.height * 0.02, p.height * 0.2);  
             }
         
             this.col = col;
@@ -527,7 +527,7 @@ const FireworksDisplay = ({ colorMapping = {}, items = [], lastKnownColor, onTog
         lastFireworkTime = 0;
         
         let fireworkToggle = true; // Starts with BLINKING
-        let nextFireworkDelay = p.random(3000, 7000); // Random delay between 2000ms and 5000ms
+        let nextFireworkDelay = p.random(8000, 12000); // Random delay between 2000ms and 5000ms
 
         p.draw = () => {
           if (isRealMobileRef.current) {
@@ -560,7 +560,7 @@ const FireworksDisplay = ({ colorMapping = {}, items = [], lastKnownColor, onTog
             addNewFirework(fireworkType);
             fireworkToggle = !fireworkToggle;
             lastFireworkTime = adjustedTime;
-            nextFireworkDelay = p.random(7000, 14000);
+            nextFireworkDelay = p.random(10000, 20000);
           }
         };
       };

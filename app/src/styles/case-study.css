@@ -26,4 +26,7 @@
     border-radius: 14px;
     backdrop-filter: blur(6px);
   }
+  .rock-escapade-study  {
+    background-color:  #1c1c1c;
+  }
 }

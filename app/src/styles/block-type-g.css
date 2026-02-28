@@ -143,8 +143,9 @@ body.game-mode-active .project-pane#block-game {z-index: 10000; position: relati
   height: 96dvh !important; }
   .block-type-g { height: 96dvh !important; }
   .block-g-exit h4 { padding-left: 0.3em; padding-right: 0.3em; }
-  .block-g-exit { padding: 12px 32px; bottom: 24px; left: 26px; }
-  .coin { width: 18em; } .coin-counter { top: 0px; display: flex; }
+  .block-g-exit { padding: 10px 32px; bottom: 24px; left: 26px; }
+  .coin { width: 16em; } .coin-counter { top: 0px; display: flex; }
+  .coin-count { top: 16px; position: relative; }
   .coin2 { width: 6em; }
   .gameover-text-area {bottom: 72px;}
   .gameover-lottie {width: calc(80%); margin-top: -144px;}

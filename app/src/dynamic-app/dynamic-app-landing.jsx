@@ -35,6 +35,7 @@ function DynamicTheme({ onReady }) {
   const [isLoading, setIsLoading] = useState(true);
   const [pauseAnimation, setPauseAnimation] = useState(false);
   const [showNavigation, setShowNavigation] = useState(false);
+  const [activeAlts, setActiveAlts] = useState([]);
 
   const toggleFireworksRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -119,7 +120,10 @@ function DynamicTheme({ onReady }) {
       handleDeactivate(alt1);
     };
 
-    const cleanup = setupAltObserver(guardedActivate, guardedDeactivate, root);
+  const cleanup = setupAltObserver(guardedActivate, guardedDeactivate, root, {
+    onActivateMany: (alts) => setActiveAlts(alts),
+    topN: 3,
+  });
     return typeof cleanup === 'function' ? cleanup : undefined;
   }, [isLoading, sortedImages, handleActivate, handleDeactivate]);
 
@@ -225,6 +229,8 @@ function DynamicTheme({ onReady }) {
           svgIcon={svgIcons['logo-small-1']}
           movingTextColors={movingTextColors}
           pauseAnimation={pauseAnimation}
+          activeAlts={activeAlts}
+          colorMapping={colorMapping}
         />
       </div>
 
@@ -235,7 +241,7 @@ function DynamicTheme({ onReady }) {
           </div>
 
           <div className="sort-by-divider">
-            <h3 className="students-heading">Students</h3>
+            <h3 className="students-heading">Community</h3>
             <SortBy
               setSortOption={() => {}}
               onFetchItems={setSortedImages}

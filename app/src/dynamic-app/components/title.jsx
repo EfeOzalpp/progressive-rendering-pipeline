@@ -3,48 +3,111 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useStyleInjection } from '../../state/providers/style-injector.ts';
 import titleCss from '../../styles/dynamic-app/title.css?raw';
 
-const isTriplet = (v) => Array.isArray(v) && v.length === 3 && v.every(x => typeof x === 'string');
+const isTriplet = (v) =>
+  Array.isArray(v) && v.length === 3 && v.every((x) => typeof x === 'string');
 
-const TitleDivider = ({ svgIcon, movingTextColors, pauseAnimation }) => {
+const TitleDivider = ({
+  pauseAnimation,
+  activeAlts = [],
+  colorMapping = {},
+  movingTextColors, // optional fallback only for initial boot
+}) => {
   useStyleInjection(titleCss, 'dynamic-app-style-title');
 
-  // visibility of this component
   const rootRef = useRef(null);
+
+  // visibility gating (same behavior as your old working one)
   const [isVisible, setIsVisible] = useState(true);
   useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(
-      ([entry]) => setIsVisible(!!entry.isIntersecting),
-      { threshold: 0.01 }
-    );
+    const io = new IntersectionObserver(([entry]) => setIsVisible(!!entry.isIntersecting), { threshold: 0.01 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
-  // stable palette that only changes when visible
-  const defaultTriplet = ['#70c6b0', '#5670b5', '#50b0c5'];
-  const incoming = isTriplet(movingTextColors) ? movingTextColors : defaultTriplet;
-
-  const [stableColors, setStableColors] = useState(incoming);
-  const pendingRef = useRef(null);
-
-  // shallow compare helper
-  const sameTriplet = (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2];
-
-  // When palette prop changes: apply immediately if visible, else stash it.
+  // viewport width
+  const [screenWidth, setScreenWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   useEffect(() => {
-    if (!isTriplet(incoming)) return;
+    const onResize = () => setScreenWidth(window.innerWidth);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // <768 => 1, 768-1024 => 2, >1024 => 3
+  const paletteCount = screenWidth > 1024 ? 3 : screenWidth >= 768 ? 2 : 1;
+
+  const normalizeKey = (v) =>
+    String(v ?? '')
+      .replace(/\u00a0/g, ' ')
+      .normalize('NFKC')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+  const normalizedColorMapping = useMemo(() => {
+    const out = Object.create(null);
+    for (const [k, v] of Object.entries(colorMapping || {})) {
+      const nk = normalizeKey(k);
+      if (!nk) continue;
+      out[nk] = v;
+    }
+    return out;
+  }, [colorMapping]);
+
+  const lastGoodAltsRef = useRef([]);
+  const pickedAlts = useMemo(() => {
+    const list = Array.isArray(activeAlts) ? activeAlts.map(normalizeKey).filter(Boolean) : [];
+
+    if (list.length > 0) lastGoodAltsRef.current = list;
+
+    const base = lastGoodAltsRef.current || [];
+    return base.slice(0, paletteCount);
+  }, [activeAlts, paletteCount]);
+
+  const derivedTripletOrNull = useMemo(() => {
+    const palettes = pickedAlts
+      .map((alt) => {
+        const p = normalizedColorMapping?.[alt];
+        return Array.isArray(p) && p.length >= 4 ? p : null;
+      })
+      .filter(Boolean);
+
+    if (palettes.length === 0) {
+      if (isTriplet(movingTextColors)) return movingTextColors;
+      return null;
+    }
+
+    const idxByLane = [0, 1, 3];
+
+    const out = [0, 1, 2].map((lane) => {
+      const palette = palettes[lane % palettes.length];
+      return palette[idxByLane[lane]];
+    });
+
+    return out.every(Boolean) ? out : null;
+  }, [pickedAlts, normalizedColorMapping, movingTextColors]);
+
+  const defaultTriplet = ['#70c6b0', '#5670b5', '#50b0c5'];
+
+  const [stableColors, setStableColors] = useState(() => {
+    if (isTriplet(movingTextColors)) return movingTextColors;
+    return defaultTriplet;
+  });
+
+  const pendingRef = useRef(null);
+  const sameTriplet = (a, b) => a?.[0] === b?.[0] && a?.[1] === b?.[1] && a?.[2] === b?.[2];
+
+  useEffect(() => {
+    if (!isTriplet(derivedTripletOrNull)) return;
+
     if (isVisible) {
-      setStableColors(prev => (sameTriplet(prev, incoming) ? prev : incoming));
+      setStableColors((prev) => (sameTriplet(prev, derivedTripletOrNull) ? prev : derivedTripletOrNull));
       pendingRef.current = null;
     } else {
-      // hold for later to avoid flicker while hidden
-      pendingRef.current = incoming;
+      pendingRef.current = derivedTripletOrNull;
     }
-  }, [incoming, isVisible]);
+  }, [derivedTripletOrNull, isVisible]);
 
-  // When we become visible, commit any pending palette once.
   useEffect(() => {
     if (isVisible && pendingRef.current && !sameTriplet(stableColors, pendingRef.current)) {
       setStableColors(pendingRef.current);
@@ -52,64 +115,53 @@ const TitleDivider = ({ svgIcon, movingTextColors, pauseAnimation }) => {
     }
   }, [isVisible, stableColors]);
 
-  // brightness adjust + smooth transition
   const adjustBrightness = (hex, mul) => {
-    if (!/^#[0-9a-f]{6}$/i.test(hex)) return hex;
+    if (!/^#[0-9a-f]{6}$/i.test(hex || '')) return hex;
     let r = parseInt(hex.slice(1, 3), 16);
     let g = parseInt(hex.slice(3, 5), 16);
     let b = parseInt(hex.slice(5, 7), 16);
     r = Math.min(255, Math.max(0, Math.floor(r * mul)));
     g = Math.min(255, Math.max(0, Math.floor(g * mul)));
     b = Math.min(255, Math.max(0, Math.floor(b * mul)));
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b
+      .toString(16)
+      .padStart(2, '0')}`;
   };
 
-  const colors = useMemo(() => ([
-    adjustBrightness(stableColors[0], 1.05),
-    adjustBrightness(stableColors[1], 1.25),
-    adjustBrightness(stableColors[2], 1.10),
-  ]), [stableColors]);
+  const colors = useMemo(() => {
+    const muls = [1.05, 1.25, 1.1];
+    return [
+      adjustBrightness(stableColors[0], muls[0]),
+      adjustBrightness(stableColors[1], muls[1]),
+      adjustBrightness(stableColors[2], muls[2]),
+    ];
+  }, [stableColors]);
 
-  const textSegments = useMemo(() => ([
-    { text: 'Institute Gallery', suffix: '' },
-    { text: 'Dyna', suffix: 'mic Media' },
-    { text: 'Dyn', suffix: 'mic Media' },
-  ]), []);
+  const textSegments = useMemo(() => ['Institute Studio', 'Dynamic Media', 'Fresh Media'], []);
 
-  const renderMovingContent = (repeatCount = 2) =>
-    [...Array(repeatCount)].flatMap((_, repeatIndex) =>
-      textSegments.map((segment, i) => (
-        <span
-          key={`${repeatIndex}-${i}`}
-          className="moving-text"
-          style={{
-            color: colors[i],
-            transition: 'color 120ms linear',
-          }}
-        >
-          {segment.text}
-          <span className="logo-container">
-            <span
-              className="svg-icon"
-              // If your injected SVG respects currentColor, you could instead set color here.
-              style={{ fill: colors[i], transition: 'fill 120ms linear' }}
-              dangerouslySetInnerHTML={{ __html: svgIcon }}
-            />
+  const renderMovingContent = (repeat = 2) =>
+    [...Array(repeat)].flatMap((_, r) =>
+      textSegments.map((text, i) => {
+        const color = colors[i];
+
+        return (
+          <span key={`${r}-${i}`} className="moving-text" style={{ color, transition: 'color 120ms linear' }}>
+            {text}
           </span>
-          {segment.suffix}
-        </span>
-      ))
+        );
+      })
     );
 
   return (
     <div className="title-container" ref={rootRef}>
       <div className="static-title">
-        <h1>MassArt 2024</h1>
-      </div>
-      <div className={`moving-title ${pauseAnimation ? 'paused' : ''}`}>
-        <h1 className="title-with-icon moving-text-wrapper">
-          {renderMovingContent()}
+        <h1>
+          MassArt 2026
         </h1>
+      </div>
+
+      <div className={`moving-title ${pauseAnimation ? 'paused' : ''}`}>
+        <h1 className="title-with-icon moving-text-wrapper">{renderMovingContent()}</h1>
       </div>
     </div>
   );

@@ -182,7 +182,7 @@ function SortBy({
   const borderItemColor = useMemo(() => {
     const alt = items[itemIndex]?.alt1;
     const color = Array.isArray(colorMapping?.[alt]) ? colorMapping[alt][2] : '#ffffff';
-    return convertHexToRGBA(color, 0.8);
+    return convertHexToRGBA(color, 0.6);
   }, [items, colorMapping, itemIndex]);
 
   const boxShadowItemColor = useMemo(() => {
@@ -199,7 +199,7 @@ function SortBy({
           ref={dropdownRef}
           style={{
             border: `solid 1.6px ${borderItemColor}`,
-            boxShadow: `0 1px 8px rgba(0,0,0,0.1), 0 22px 8px rgba(0,0,0,0.08), 12px 12px ${boxShadowItemColor}`,
+            boxShadow: `0 1px 8px rgba(0,0,0,0.1), 0 22px 8px rgba(0,0,0,0.08), 8px 8px ${boxShadowItemColor}`,
           }}
         >
           <div className="custom-select" onClick={() => setIsOpen(!isOpen)}>

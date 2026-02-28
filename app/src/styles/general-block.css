@@ -1,6 +1,6 @@
 /* Nav menu */
 .nav-menu { user-select: none !important; -webkit-user-select: none !important; -ms-user-select: none !important; -webkit-user-drag: none !important; -khtml-user-drag: none !important; -moz-user-select: none !important; -o-user-select: none !important; pointer-events: none !important; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; padding-bottom: 16px; z-index: 2000; }
-.nav-left { width: 50%; display: flex; justify-content: flex-start; padding-left: 16px; }
+.nav-left { width: 50%; display: flex; justify-content: flex-start; padding-left: 56px; }
 .nav-right { padding: 24px; gap: 28px; display: flex; justify-content: flex-end; width: fit-content; pointer-events: all; }
 .logo-svg { display: block; user-select: none; }
 .icon-svg { cursor: pointer; transition: transform 0.2s ease; user-select: none; }
@@ -75,13 +75,13 @@ a.view-project-btn, button.view-project-btn { -webkit-appearance: none; appearan
   button.view-project-btn.is-focused, button.view-project-btn.no-bg.is-focused { padding: 4px 40px 0px 32px; }
   button.view-project-btn.is-focused div.view-project-arrow svg, button.view-project-btn.no-bg.is-focused div.view-project-arrow svg  {transform: scaleX(-1) !important;}
   .view-project-btn { padding: 12px 36px 8px 44px; gap: 1.5em; }
-  .view-project-arrow { width: 3em !important; }
+  .view-project-arrow { width: 2.6em !important; }
   .github-lottie { width: 2.6em !important; }
   .linkedin-lottie { width: 2.6em !important; }
   .title-lottie { width: 11.8em !important; }
   .view-project-wrapper { bottom: 4dvh !important; }
   .nav-menu { padding-bottom: 4px; }
-  .nav-right { padding-right: 28px; gap: 24px !important; }
+  .nav-right { padding-right: 68px; gap: 24px !important; }
   .arrow-svg { filter: drop-shadow(0 0px 18px rgba(0,0,0,0.6)); }
   .split-arrow { scale: 0.6; left: -0.6em; position: relative;}
   .pane-placeholder { height: 96dvh;}

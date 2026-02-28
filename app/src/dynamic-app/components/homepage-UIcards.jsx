@@ -1,3 +1,4 @@
+// src/dynamic-app/components/UIcards.jsx
 import React from 'react';
 import MediaLoader from '../../services/media/useMediaLoader';
 import { useStyleInjection } from '../../state/providers/style-injector';
@@ -41,10 +42,16 @@ const UIcards = React.forwardRef(function UIcards(
 
         <h-name className={`image-title ${className}`}>
           <a href={url1} className={`ui-link-2 ${className}`}>
-            <span className="title-text">{title}</span>
-            {customArrowIcon2 && (
-              <div className="svg-icon" dangerouslySetInnerHTML={{ __html: customArrowIcon2 }} />
-            )}
+            <span className="title-row">
+              <span className="title-text">{title}</span>
+              {customArrowIcon2 ? (
+                <span className="svg-con" aria-hidden="true">
+                  <span className="svg-icon" dangerouslySetInnerHTML={{ __html: customArrowIcon2 }} />
+                </span>
+              ) : (
+                <span className="svg-con" aria-hidden="true" />
+              )}
+            </span>
           </a>
         </h-name>
       </div>

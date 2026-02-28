@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import SplitDragHandler from '../../components/general-ui/split-feature/split-controller';
 import { useTooltipInit } from '../../components/general-ui/tooltip/tooltipInit';
 import { applySplitStyle } from '../../components/general-ui/split-feature/split-pre-hydration';
+import { useVideoObserverSSR } from '../../behaviors/useVideoObserverSSR';
 
 export default function ScoopEnhancer() {
   const [host, setHost] = useState<HTMLElement | null>(null);
@@ -11,6 +12,14 @@ export default function ScoopEnhancer() {
   const [isPortrait, setIsPortrait] = useState(window.innerHeight > window.innerWidth);
 
   useTooltipInit();
+
+  useVideoObserverSSR({
+    videoId: 'icecream-media-2',
+    observeTargetId: 'scoop-media-2-container',
+    threshold: 0.15,
+    enabled: true,
+    playOnInit: true,
+  });
 
   useEffect(() => {
     const cleanup: Array<() => void> = [];
@@ -23,16 +32,10 @@ export default function ScoopEnhancer() {
     const full1 = img1El?.dataset?.srcFull;
     const full2 = vid2El?.dataset?.srcFull;
 
-    // Upgrade LEFT media (image)
-    if (img1El && full1 && img1El.src !== full1) {
-      img1El.src = full1;
-    }
+    if (img1El && full1 && img1El.src !== full1) img1El.src = full1;
 
-    // Upgrade RIGHT media (video)
     if (vid2El) {
-      if (full2 && vid2El.poster !== full2) {
-        vid2El.poster = full2;
-      }
+      if (full2 && vid2El.poster !== full2) vid2El.poster = full2;
 
       const removePoster = () => {
         vid2El.removeAttribute('poster');
@@ -52,25 +55,23 @@ export default function ScoopEnhancer() {
           vid2El.addEventListener('timeupdate', onTime, { once: true });
           cleanup.push(() => vid2El.removeEventListener('timeupdate', onTime));
 
-          const timer = setTimeout(() => {
+          const timer = window.setTimeout(() => {
             vid2El.removeEventListener('timeupdate', onTime);
             removePoster();
           }, 1200);
-          cleanup.push(() => clearTimeout(timer));
+          cleanup.push(() => window.clearTimeout(timer));
         }
       };
 
       vid2El.addEventListener('play', onPlay, { once: true });
       cleanup.push(() => vid2El.removeEventListener('play', onPlay));
 
+      vid2El.preload = 'auto';
       if (vid2El.readyState === 0) {
-        vid2El.preload = 'auto';
-        try { vid2El.load(); } catch {}
-      } else {
-        vid2El.preload = 'auto';
+        try {
+          vid2El.load();
+        } catch {}
       }
-
-      vid2El.play().catch(() => { /* ignored; poster remains until user interacts */ });
     }
 
     setHost(document.getElementById('scoop-enhancer-mount'));
@@ -88,10 +89,11 @@ export default function ScoopEnhancer() {
         m2: 'scoop-media-2-container',
       });
     };
+
     window.addEventListener('resize', onResize, { passive: true });
     cleanup.push(() => window.removeEventListener('resize', onResize));
 
-    return () => cleanup.forEach(fn => fn());
+    return () => cleanup.forEach((fn) => fn());
   }, []);
 
   useEffect(() => {
@@ -102,6 +104,7 @@ export default function ScoopEnhancer() {
   }, [split, isPortrait]);
 
   if (!host) return null;
+
   return createPortal(
     <SplitDragHandler
       split={split}

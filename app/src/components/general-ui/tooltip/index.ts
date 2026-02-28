@@ -16,8 +16,8 @@ const sharedEntries = Object.fromEntries(
 ) as Record<string, string[]>;
 
 const LOCAL_FALLBACK_TAGS: Record<string, string[]> = {
-  'block-g': ['#User Event Handling', '#Animated UI Feedback', '#Persistent Server State'],
-  dynamic: ['#Shadow-Scoped Rendering', '#Explicit CSS Scoping', '#Frame-Based Layout'],
+  'block-g': ['UI State Management', 'Touch & Mouse Interaction', 'Backend Score Persistence'],
+  dynamic: ['Microfrontend Architecture', 'Scoped Component Rendering', 'Scoped-CSS-styles'],
   ...sharedEntries,
 };
 

@@ -6,7 +6,7 @@ import '../../../styles/case-study.css';
 
 export default function CaseStudyGame() {
   return (
-    <div style={{ padding: '2rem', height: '96dvh'}}>
+    <div className="rock-escapade-study" style={{ padding: '2rem', height: '96dvh'}}>
       <h2>This section is empty...</h2>
       <p>(for the time being)</p>
     </div>
