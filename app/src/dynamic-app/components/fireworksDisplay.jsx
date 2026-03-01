@@ -304,7 +304,7 @@ const FireworksDisplay = ({ colorMapping = {}, items = [], lastKnownColor, onTog
               this.targetY = p.random(p.height * 0.05, p.height * 0.3);  
               } else {
               // For screens larger than 1024px, make the explosion lower on the screen
-              this.targetX = p.random(p.width * 0.2, p.width * 0.8);  
+              this.targetX = p.random(p.width * 0.4, p.width * 0.6);  
               this.targetY = p.random(p.height * 0.02, p.height * 0.2);  
             }
         

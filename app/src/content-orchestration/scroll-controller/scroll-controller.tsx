@@ -66,7 +66,7 @@ const ScrollController = ({ className }: ScrollControllerProps) => {
 
   // While focused: if user scrolls enough that another pane is visible, exit focus
   useAutoUnfocusWhileFocused({
-    enabled: isSnapMode,
+    enabled: true,
     scrollContainerRef,
     focusedProjectKey,
     setFocusedProjectKey,
@@ -77,9 +77,9 @@ const ScrollController = ({ className }: ScrollControllerProps) => {
   });
 
   // On focus exit: do the anchor / proximity ramp choreography
-  // (matches your current hook signature: enabled + refs only)
   useFocusExitChoreography({
-    enabled: isSnapMode,
+    enabled: true,
+    applySnapTransition: isSnapMode,
     scrollContainerRef,
     focusedProjectKey,
     projectRefs,

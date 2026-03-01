@@ -16,9 +16,12 @@ export default function useIntersectionTransform(
     const isInShadow = !!shadow;
     const containerEl =
       (typeof getScrollRoot === 'function' && getScrollRoot()) ||
-      // prefer your inner scroller if we can find it:
-      (isInShadow ? shadow.querySelector('.embedded-app') as Element | null : null) ||
       null; // fallback = viewport
+
+    // IO root only — finds .embedded-app outside the shadow to prevent outer scroll from triggering
+    const ioRoot: Element | null =
+      (isInShadow ? shadow.host.closest('.embedded-app') as Element | null : null) ||
+      null;
 
     // (optional) gate transforms to when pointer is inside shadow host
     let mouseInside = false;
@@ -120,19 +123,16 @@ export default function useIntersectionTransform(
 
         const rect = entry.boundingClientRect;
 
-        // use the container’s rect/height instead of window
-        const rootRect = containerEl
-          ? (containerEl as Element).getBoundingClientRect()
+        const rootRect = ioRoot
+          ? ioRoot.getBoundingClientRect()
           : document.documentElement.getBoundingClientRect();
 
-        const rootHeight =
-          containerEl instanceof Element
-            ? (containerEl as HTMLElement).clientHeight
-            : window.innerHeight;
+        const rootHeight = ioRoot
+          ? (ioRoot as HTMLElement).clientHeight
+          : window.innerHeight;
 
         const rootCenter = rootRect.top + rootHeight;
 
-        // replicate your old math but relative to the container center
         const percentage = Math.max(
           0,
           Math.min(rect.height, rootCenter - rect.top)
@@ -141,20 +141,19 @@ export default function useIntersectionTransform(
         applyTransform(percentage);
       },
       {
-        root: containerEl || null, // ← critical change
+        root: ioRoot,
         threshold: Array.from({ length: 101 }, (_, i) => i / 100),
       }
     );
 
-    // initial position apply (also relative to container)
+    // initial position apply
     const rect = cardEl.getBoundingClientRect();
-    const rootRect = containerEl
-      ? (containerEl as Element).getBoundingClientRect()
+    const rootRect = ioRoot
+      ? ioRoot.getBoundingClientRect()
       : document.documentElement.getBoundingClientRect();
-    const rootHeight =
-      containerEl instanceof Element
-        ? (containerEl as HTMLElement).clientHeight
-        : window.innerHeight;
+    const rootHeight = ioRoot
+      ? (ioRoot as HTMLElement).clientHeight
+      : window.innerHeight;
     const rootCenter = rootRect.top + rootHeight / 1.5;
     const initialPct = Math.max(0, Math.min(rect.height, rootCenter - rect.top)) / rect.height;
     applyTransform(initialPct);

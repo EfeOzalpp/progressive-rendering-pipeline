@@ -135,7 +135,7 @@ div.option.selected { padding-top: 16px; padding-bottom: 16px; }
 .options-container { position: absolute; z-index: 1000; background: #222222; width: 100%; right: -1.6px; top: calc(100% - 8px); padding-top: 8px; padding-bottom: 8px; border-bottom-left-radius: 2px; border-bottom-right-radius: 2px; }
 #shadow-dynamic-app .options-container { right: -1.2px; top: calc(100% - 8px); }
 
-.students-heading { position: relative; top: 28px; }
+.students-heading { position: relative; top: 36px; }
 #shadow-dynamic-app .students-heading { left: 0px; }
 
 .pause-button-wrapper { padding-left: 24%; padding-top: 24px; }

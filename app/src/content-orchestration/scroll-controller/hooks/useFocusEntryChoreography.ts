@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { getScroller } from '../lib/scroll';
+import { getScroller, getOffsetTopWithin } from '../lib/scroll';
+import { animateScrollToTop } from '../lib/animate';
 
 export function useFocusEntryChoreography(opts: {
   scrollContainerRef: React.RefObject<HTMLElement | null>;
@@ -20,8 +21,11 @@ export function useFocusEntryChoreography(opts: {
         `block-${focusedProjectKey}`
       ) as HTMLDivElement | null);
 
+    if (!targetEl) return;
+
     requestAnimationFrame(() => {
-      targetEl?.scrollIntoView?.({ block: 'start', behavior: 'smooth' });
+      const targetTop = getOffsetTopWithin(targetEl, scroller);
+      animateScrollToTop(scroller, targetTop + scroller.clientHeight * 0.33, 400);
     });
   }, [focusedProjectKey, scrollContainerRef, projectRefs]);
 }

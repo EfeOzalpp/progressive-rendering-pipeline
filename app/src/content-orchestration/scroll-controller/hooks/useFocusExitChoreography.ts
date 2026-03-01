@@ -88,6 +88,7 @@ function animatePlaceToKey(
 
 export function useFocusExitChoreography(opts: {
   enabled: boolean;
+  applySnapTransition?: boolean;
   scrollContainerRef: React.RefObject<HTMLElement | null>;
   focusedProjectKey: string | null;
   projectRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
@@ -96,6 +97,7 @@ export function useFocusExitChoreography(opts: {
 }) {
   const {
     enabled,
+    applySnapTransition = true,
     scrollContainerRef,
     focusedProjectKey,
     projectRefs,
@@ -122,32 +124,38 @@ export function useFocusExitChoreography(opts: {
     const SNAP_RAMP_MS = 300;
     const MIN_LINGER_MS = 200;
 
-    container.classList.add('no-snap');
+    if (applySnapTransition) container.classList.add('no-snap');
 
     const cleanup = () => {
       state.cancelTween?.();
       state.cancelTween = undefined;
       state.timers.forEach((t) => clearTimeout(t));
       state.timers = [];
-      container.classList.remove('no-snap');
-      container.classList.remove('snap-proximity');
+      if (applySnapTransition) {
+        container.classList.remove('no-snap');
+        container.classList.remove('snap-proximity');
+      }
     };
 
     state.cancelTween = animatePlaceToKey(scrollContainerRef, projectRefs, preferredKey, 240);
 
-    const rampTimer = window.setTimeout(() => {
-      container.classList.add('snap-proximity');
-      container.classList.remove('no-snap');
+    if (applySnapTransition) {
+      const rampTimer = window.setTimeout(() => {
+        container.classList.add('snap-proximity');
+        container.classList.remove('no-snap');
 
-      const removeRamp = window.setTimeout(() => {
-        container.classList.remove('snap-proximity');
-      }, SNAP_RAMP_MS);
+        const removeRamp = window.setTimeout(() => {
+          container.classList.remove('snap-proximity');
+        }, SNAP_RAMP_MS);
 
-      state.timers.push(removeRamp);
+        state.timers.push(removeRamp);
+        exitTargetKeyRef.current = null;
+      }, MIN_LINGER_MS);
+
+      state.timers.push(rampTimer);
+    } else {
       exitTargetKeyRef.current = null;
-    }, MIN_LINGER_MS);
-
-    state.timers.push(rampTimer);
+    }
 
     return cleanup;
   }, [
