@@ -74,9 +74,9 @@ a.view-project-btn, button.view-project-btn { -webkit-appearance: none; appearan
 @media (min-width: 1025px) {
   [data-prehydrate] .view-project-btn { padding: 28px 120px 0px 120px; }
   button.view-project-btn.is-focused, button.view-project-btn.no-bg.is-focused { padding: 4px 36px 0px 44px; }
-  .view-project-btn { padding: 14px 36px 8px 44px; gap: 1.5em; }
+  .view-project-btn { padding: 13px 40px 5px 40px; gap: 1.5em; }
   .view-project-btn.no-arrow { padding: 12px 40px 8px 40px; }
-  .view-project-arrow { width: 2.6em !important; }
+  .view-project-arrow { width: 2.6em !important;  margin-top: -0.25em;}
   .github-lottie { width: 2.6em !important; }
   .linkedin-lottie { width: 2.6em !important; }
   .title-lottie { width: 11.8em !important; }

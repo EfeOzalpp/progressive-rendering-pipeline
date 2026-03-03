@@ -1,5 +1,5 @@
 /* Rock Escapade */
-.block-type-g { max-width: 100%; height: 98dvh; width: 100vw; display: flex; flex-wrap: wrap; align-content: space-between; background: #1c1c1c; }
+.block-type-g { max-width: 100%; height: 98dvh; width: 100vw; display: flex; flex-wrap: wrap; align-content: space-between; background: #202020; }
 .q5-normal { width: 100%; height: 100%; }
 
 #block-game .g-hydrate-root,
@@ -50,9 +50,9 @@ height: 92dvh; width: 100vw; }
   height: 100vh;
   background: radial-gradient(
     circle at center,
-    rgb(27, 27, 28) 0%,
-    rgb(20, 20, 20) 50%,
-    rgb(10, 10, 10) 100%
+    #242424 0%,
+    #202020 50%,
+    #1b1b1b 100%
   );
   opacity: 1;
   transition: opacity 0.4s ease;
@@ -64,11 +64,12 @@ height: 92dvh; width: 100vw; }
 }
 
 /* game over */
-.block-g-gameover { position: absolute; top: 0; left: 0; width: 100%; height: 100%;   background: radial-gradient(
+.block-g-gameover { position: absolute; top: 0; left: 0; width: 100%; height: 100%;   
+  background: radial-gradient(
     circle at center,
-    rgb(27, 27, 28) 0%,
-    rgb(20, 20, 20) 50%,
-    rgb(10, 10, 10) 100%
+    #242424 0%,
+    #202020 50%,
+    #1b1b1b 100%
   ); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;}
 .gameover-overlay { z-index: 10050;}
 .gameover-text { color: whitesmoke;}
@@ -143,7 +144,7 @@ body.game-mode-active .project-pane#block-game {z-index: 10000; position: relati
   height: 96dvh !important; }
   .block-type-g { height: 96dvh !important; }
   .block-g-exit h4 { padding-left: 0.3em; padding-right: 0.3em; }
-  .block-g-exit { padding: 10px 32px; bottom: 24px; left: 26px; }
+  .block-g-exit { padding: 0px 32px; bottom: 24px; left: 26px; }
   .coin { width: 16em; } .coin-counter { top: 0px; display: flex; }
   .coin-count { top: 16px; position: relative; }
   .coin2 { width: 6em; }
@@ -160,7 +161,7 @@ body.game-mode-active .project-pane#block-game {z-index: 10000; position: relati
 .block-type-g.fake-fs {
   position: fixed; inset: 0;
   width: 100vw; height: 100svh;
-  z-index: 1500; background: #000;
+  z-index: 1500; background: #202020;
 }
 
 /* When game mode is active, take over the viewport */
@@ -172,7 +173,7 @@ body.game-mode-active .block-type-g.ingame {
   z-index: 9999 !important;
   margin: 0;
   padding: 0;
-  background: #000; /* smoother transition under canvas */
+  background: #202020; /* smoother transition under canvas */
   /* avoid rubber band / pull-to-refresh while playing */
   overscroll-behavior: none;
   touch-action: none; /* optional: blocks pinch/zoom during gameplay */
@@ -217,7 +218,7 @@ body.game-mode-active .block-type-g.ingame .evade-the-rock {
 body.game-mode-active .nav-menu { z-index: 0 !important; }
 
 /* Optional: keep pane scroller inert while playing */
-body.game-mode-active .SnappyScrollThingy {
+body.game-mode-active .Scroll {
   overflow: hidden !important;
 }
 
@@ -235,7 +236,7 @@ body.game-mode-active .SnappyScrollThingy {
   inset: 0;
   width: 100vw;
   height: 100dvh;
-  background: #000;
+  background: #202020;
   pointer-events: auto;
   overflow: hidden;
   /* performance niceties */

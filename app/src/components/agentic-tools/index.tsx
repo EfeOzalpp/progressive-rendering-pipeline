@@ -1,130 +1,69 @@
 // src/components/agentic-tools/index.tsx
-import { useEffect, useRef, useState } from 'react';
+import { AgenticProvider, useAgentic } from '../../state/providers/agentic-context';
+import ChatBox from './chatbox';
+import MessageStream from './message-stream';
 import '../../styles/block-type-t.css';
 
-const MODES = ['Conversation', 'Job Search', 'Create SVGs'];
-const PLACEHOLDERS = ["What's on your mind?", 'Tell me the Software Engineering Job you seek.', 'What can I draw for you?'];
+function AgenticSurface() {
+  const { hasMessages, mode, scrollPercent, messages, requestScrollToBottom } = useAgentic();
+  const showFade = hasMessages && mode !== 'svg-creation';
+  const showIndicator = messages.length >= 7;
+  const caughtUp = scrollPercent >= 95;
 
-export default function AgenticTools() {
-  const [input, setInput] = useState('');
-  const [mode, setMode] = useState(0);
-  const [messages, setMessages] = useState<string[]>([]);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const getScrollContainer = () =>
-    document.querySelector('.Scroll') as HTMLElement | null;
-
-  // Auto-resize textarea — restore outer scroll after browser's async scroll-into-view fires
-  useEffect(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    const scroller = getScrollContainer();
-    const saved = scroller?.scrollTop ?? 0;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-    if (scroller) requestAnimationFrame(() => { scroller.scrollTop = saved; });
-  }, [input]);
-
-  // Scroll to bottom when new message added
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Prevent outer scroll container from jumping when textarea receives focus
-  const handleFocus = () => {
-    const scroller = getScrollContainer();
-    if (!scroller) return;
-    const saved = scroller.scrollTop;
-    requestAnimationFrame(() => { scroller.scrollTop = saved; });
-  };
-
-  const handleSubmit = () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
-    setMessages(prev => [...prev, trimmed]);
-    setInput('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
+  const greeting = mode === 'conversation' ? (
+    <>
+      I sense{' '}
+      <svg style={{ display: 'inline', verticalAlign: 'middle', marginBottom: '0.1em' }} width="0.9em" height="0.9em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 15.2422C21.206 14.435 22 13.0602 22 11.5C22 9.15643 20.2085 7.23129 17.9203 7.01937C17.4522 4.17213 14.9798 2 12 2C9.02024 2 6.54781 4.17213 6.07974 7.01937C3.79151 7.23129 2 9.15643 2 11.5C2 13.0602 2.79401 14.435 4 15.2422M12.25 15L9.44995 22M17.05 13L14.25 20M9.05 13L6.25 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+      {' '}thunders in your heart.
+    </>
+  ) : mode === 'job-search' ? "I'll scrape relevant web domains."
+    : null;
 
   return (
-    <section
-      className="agentic-tools"
-      id="no-ssr"
-      style={{ position: 'relative', width: '100%', height: '96dvh', overflow: 'hidden', overflowAnchor: 'none' }}
-    >
-      <div className={`at-surface${messages.length > 0 ? ' has-messages' : ''}`}>
-        <div className="at-messages">
-          <div className="at-messages-spacer" />
-          {messages.map((msg, i) => (
-            <div key={i} className="at-message">{msg}</div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="at-card">
-          <textarea
-            ref={textareaRef}
-            className="at-input"
-            id="form-field"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onFocus={handleFocus}
-            placeholder={PLACEHOLDERS[mode]}
-            rows={1}
-          />
-          <div className="at-footer-row">
-            <div className="at-mode-row">
-              <span
-                className={`at-conversation-label${mode === 0 ? ' active' : ''}`}
-                onClick={() => setMode(0)}
-              >
-                {MODES[0]}
-              </span>
-              <div className="at-mode-switcher">
-                <div
-                  className="at-mode-slider"
-                  style={{
-                    transform: `translateX(${(mode - 1) * 100}%)`,
-                    opacity: mode === 0 ? 0 : 1,
-                  }}
-                />
-                {MODES.slice(1).map((label, i) => (
-                  <button
-                    key={label}
-                    className={`at-mode-btn${mode === i + 1 ? ' active' : ''}`}
-                    onClick={() => setMode(i + 1)}
-                  >
-                    {mode === i + 1 && (
-                      <span
-                        className="at-mode-close"
-                        onClick={e => { e.stopPropagation(); setMode(0); }}
-                      >
-                        ×
-                      </span>
-                    )}
-                    {label}
-                  </button>
-                ))}
+    <div className={`at-surface${hasMessages ? ' has-messages' : ''}${mode === 'svg-creation' && hasMessages ? ' svg-top' : ''}`}>
+      {showFade && (
+        <div className="at-messages-fade">
+          <div className="at-top-nav">
+            <div className="at-top-nav-placeholder" />
+            {showIndicator && (
+              <div className={`at-scroll-indicator${caughtUp ? ' caught-up' : ''}`}>
+                {caughtUp ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                ) : `${scrollPercent}%`}
               </div>
-            </div>
-            <button
-              className="at-send-btn"
-              onClick={handleSubmit}
-              disabled={!input.trim()}
-              aria-label="Send"
-            >
-              Send
-            </button>
+            )}
           </div>
+          <div className="at-gradient-fade" />
         </div>
-      </div>
-    </section>
+      )}
+      {showFade && scrollPercent < 75 && (
+        <button className="at-scroll-bottom-btn" onClick={requestScrollToBottom} aria-label="Scroll to bottom">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5v14M5 12l7 7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </button>
+      )}
+      {!hasMessages && greeting && <p className="at-greeting">{greeting}</p>}
+      <MessageStream />
+      <ChatBox />
+    </div>
+  );
+}
+
+export default function AgenticTools() {
+  return (
+    <AgenticProvider>
+      <section
+        className="agentic-tools"
+        id="no-ssr"
+        style={{ position: 'relative', width: '100%', height: '96dvh', overflow: 'hidden', overflowAnchor: 'none' }}
+      >
+        <AgenticSurface />
+      </section>
+    </AgenticProvider>
   );
 }

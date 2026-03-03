@@ -347,7 +347,7 @@ export default function GameCanvas({
           lastDemoFlag = demo;
 
           if (pauseHiddenRef.current && !visibleRef.current) {
-            p.background(28);
+            p.background(32);
             return;
           }
 
@@ -356,7 +356,7 @@ export default function GameCanvas({
           const vw = p.width;
           const vh = p.height;
 
-          p.background(28);
+          p.background(32);
 
           if (!demo && overlayRef.current) {
             movingUp = movingDown = movingLeft = movingRight = false;
@@ -828,7 +828,7 @@ export default function GameCanvas({
           update(delta:number){this.x+=this.vx*delta;this.y+=this.vy*delta;this.lifespan-=1*delta;this.rotation+=this.rotationSpeed*delta;}
           display(pAny:any){
             pAny.push();pAny.translate(this.x,this.y);pAny.rotate(pAny.radians(this.rotation));
-            const a=pAny.map(this.lifespan,0,this.maxLifespan,0,255);pAny.fill(this.color.levels[0],this.color.levels[1],this.color.levels[2],a);
+            const a = pAny.map(this.lifespan,0,this.maxLifespan,0,255);pAny.fill(this.color.levels[0],this.color.levels[1],this.color.levels[2],a);
             pAny.noStroke();pAny.rectMode(pAny.CENTER);pAny.rect(0,0,this.size,this.size);pAny.pop();
           }
           isDead(vw:number,vh:number){return this.lifespan<=0||this.x<-50||this.x>vw+50||this.y<-50||this.y>vh+50;}

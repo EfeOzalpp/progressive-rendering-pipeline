@@ -19,6 +19,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import App from '../App';
 import highScoreRoute from './highScore/highScoreRoute';
+import claudeRoute from './claude/claudeRoute';
 
 import { SsrDataProvider } from '../state/providers/ssr-data-context';
 import { getEphemeralSeed } from './seed';
@@ -42,7 +43,7 @@ app.use(
 const IS_DEV = process.env.NODE_ENV !== 'production';
 
 const PORT = Number(process.env.PORT) || 3001;
-const HOST = process.env.HOST || (IS_DEV ? '10.3.30.208' : '0.0.0.0');
+const HOST = process.env.HOST || (IS_DEV ? '192.168.29.199' : '0.0.0.0');
 
 const DEV_CLIENT_PORT = Number(process.env.DEV_CLIENT_PORT) || 3000;
 const DEV_HOST_FOR_ASSETS = process.env.DEV_HOST_FOR_ASSETS || HOST;
@@ -52,6 +53,7 @@ const { BUILD_DIR, STATS_FILE, ASSET_MANIFEST } = resolveStatsFile();
 
 /** API routes */
 app.use('/api', highScoreRoute);
+app.use('/api/claude', claudeRoute);
 
 /** Static assets (public) */
 app.use(express.static(path.join(process.cwd(), 'public'), { maxAge: '1y', index: false }));

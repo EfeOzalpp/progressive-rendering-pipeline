@@ -1,5 +1,5 @@
 /* Block Type A styles */
-.block-type-a { width: 100%; background: linear-gradient(to right, #121212 0%, #181818 40%, #111111 75%, #0f0f0f 100%); display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 0; overflow: hidden; }
+.block-type-a { width: 100%; background: linear-gradient(to right, #181818 0%, #1a1a1a 40%, #111111 75%, #1c1c1c 100%); display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 0; overflow: hidden; }
 
 .device-wrapper { position: relative; width: 100%; margin: 0 auto; }
 
